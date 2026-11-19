@@ -1,0 +1,22 @@
+# Cloudflared — Named Tunnel "telegram-boarding-bot"
+# UUID del túnel: 0d7c953d-a681-4045-9c19-aee34098bdc9
+#
+# Este archivo se instala en /opt/odoo/custom/telegram_boarding_bot/deploy/cloudflared/
+# El credentials-file vive en el home del usuario que corre cloudflared
+# (por defecto /home/odoo/.cloudflared/). No commitear credenciales.
+#
+# La unidad systemd usa:
+#   cloudflared tunnel --config <este archivo> run telegram-boarding-bot
+
+tunnel: telegram-boarding-bot
+credentials-file: /home/odoo/.cloudflared/0d7c953d-a681-4045-9c19-aee34098bdc9.json
+
+ingress:
+  # Webhook de Telegram + rutas del bot (FastAPI en 127.0.0.1:8010)
+  - hostname: bot.viacotur.com
+    service: http://127.0.0.1:8010
+  # Odoo público (payload del QR: {ODOO_PUBLIC_URL}/form/accept/<token>)
+  - hostname: odoo.viacotur.com
+    service: http://127.0.0.1:8079
+  # Catch-all
+  - service: http_status:404

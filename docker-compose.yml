@@ -1,0 +1,28 @@
+services:
+  telegram-bot:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    ports:
+      - "127.0.0.1:8010:8010"
+
+  # Cloudflare Tunnel (Named Tunnel "telegram-boarding-bot")
+  # Requiere: TUNNEL_TOKEN del dashboard Zero Trust, o montar
+  # ~/.cloudflared/{cert.pem,<uuid>.json} y usar:
+  #   command: tunnel --config /etc/cloudflared/config.yml run telegram-boarding-bot
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    restart: unless-stopped
+    # Token del túnel (Zero Trust -> Networks -> Tunnels -> telegram-boarding-bot)
+    # Si prefieres config local, comenta environment y usa command + volumes:
+    # command: tunnel --config /etc/cloudflared/config.yml run telegram-boarding-bot
+    environment:
+      - TUNNEL_TOKEN=${CLOUDFLARED_TUNNEL_TOKEN:-}
+    # volumes:
+    #   - ./deploy/cloudflared/config.yml:/etc/cloudflared/config.yml:ro
+    #   - ${HOME}/.cloudflared:/home/odoo/.cloudflared:ro
+    depends_on:
+      - telegram-bot
+    # El ingress del túnel debe apuntar a los servicios por nombre Docker:
+    #   bot.<zona>  -> http://telegram-bot:8010
+    #   odoo.<zona> -> http://host.docker.internal:8079   (Odoo fuera del compose)

@@ -1,0 +1,29 @@
+# systemd — cloudflared (Named Tunnel del Telegram Boarding Bot)
+# Instalado por deploy/deploy.sh o manualmente:
+#   sudo cp deploy/cloudflared-telegram-bot.service /etc/systemd/system/
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now cloudflared-telegram-bot
+#
+# El binario puede ser el del sistema (cloudflared del PATH) o el
+# incluido en el proyecto: /opt/odoo/custom/telegram_boarding_bot/bin/cloudflared
+
+[Unit]
+Description=cloudflared tunnel (telegram-boarding-bot)
+After=network-online.target telegram-bot.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=odoo
+Group=odoo
+WorkingDirectory=/opt/odoo/custom/telegram_boarding_bot
+ExecStart=/opt/odoo/custom/telegram_boarding_bot/bin/cloudflared tunnel \
+    --config /opt/odoo/custom/telegram_boarding_bot/deploy/cloudflared/config.yml \
+    run telegram-boarding-bot
+Restart=on-failure
+RestartSec=5
+# cloudflared no necesita privilegios; evita crash-loops ruidosos
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target

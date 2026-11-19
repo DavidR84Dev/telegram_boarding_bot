@@ -1,0 +1,20 @@
+.env
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+logs/
+.DS_Store
+
+# Binario local de cloudflared (se descarga en deploy)
+bin/
+
+# Credenciales de Cloudflare Tunnel (nunca en Git)
+*.json
+!deploy/cloudflared/*.yml
+deploy/cloudflared/*.json
+**/credentials*.json
+**/*-cert.pem
+
+# Copias de seguridad del .env (contienen credenciales)
+.env.bak*

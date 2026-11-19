@@ -1,0 +1,25 @@
+# systemd — Bot de Telegram (pase de abordaje)
+# Copiar a /etc/systemd/system/ y habilitar:
+#   sudo cp telegram-bot.service /etc/systemd/system/
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now telegram-bot
+
+[Unit]
+Description=Telegram Boarding Bot (FastAPI + python-telegram-bot)
+After=network.target
+
+[Service]
+Type=simple
+User=odoo
+Group=odoo
+WorkingDirectory=/opt/odoo/custom/telegram_boarding_bot
+EnvironmentFile=/opt/odoo/custom/telegram_boarding_bot/.env
+ExecStart=/opt/odoo/custom/telegram_boarding_bot/.venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8010
+Restart=on-failure
+# Odoo puede tardar en estar disponible: espera más entre reinicios y corta el bucle.
+RestartSec=30
+StartLimitIntervalSec=600
+StartLimitBurst=5
+
+[Install]
+WantedBy=multi-user.target
